@@ -9,10 +9,8 @@ import java.awt.*;
 
 //Syscall baseada no arquivo SyscallInputDialogString
 
-public class SyscallInputText extends AbstractSyscall 
-{
-    public SyscallInputText() 
-    {
+public class SyscallInputText extends AbstractSyscall{
+    public SyscallInputText() {
         super(60, "InputText");
     }
     
@@ -26,8 +24,7 @@ public class SyscallInputText extends AbstractSyscall
                 String conteudo = new String(Files.readAllBytes(arquivoSelecionado.toPath()));
                 areaDeTexto.setText(conteudo);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Erro ao carregar o arquivo: " + e.getMessage(),
-                        "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Erro ao carregar o arquivo: " + e.getMessage(),"Erro", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -36,11 +33,11 @@ public class SyscallInputText extends AbstractSyscall
     public void simulate(ProgramStatement statement) throws ProcessingException 
     {
         String mensagem = new String(); 
-        int enderecoByte = RegisterFile.getValue(4); //Endereço de $a0
+        int enderecoByte = RegisterFile.getValue(4);
         char caractere[] = { ' '};
         try 
         {
-            caractere[0] = (char) Globals.memory.getByte(enderecoByte); //getByte = 8 bits = primeiro caractere
+            caractere[0] = (char) Globals.memory.getByte(enderecoByte);
             while (caractere[0] != 0) 
             {
                 mensagem = mensagem.concat(new String(caractere)); 
@@ -84,14 +81,16 @@ public class SyscallInputText extends AbstractSyscall
                 carregarArquivo(areaDeTexto);
 
             String textoEntrada = areaDeTexto.getText(); // Captura o texto digitado
+            RegisterFile.updateRegister(8, textoEntrada.length());
             enderecoByte = RegisterFile.getValue(5); // Endereço do buffer em $a1
             int comprimentoMaximo = RegisterFile.getValue(6); // Tamanho máximo do buffer em $a2
             final int comprimentoArquivo = 256;
+            
             try {
             	if (opcao == 0)
             	{	
             		//Ultrapassou o limite do buffer
-            		if (textoEntrada.length() > comprimentoMaximo) 
+            		if (textoEntrada.length() >= comprimentoMaximo) 
                     { 
                         RegisterFile.updateRegister(5, -2);
                         JOptionPane.showMessageDialog(null, "Não é possível transferir seu texto para buffer, "
@@ -100,21 +99,19 @@ public class SyscallInputText extends AbstractSyscall
                     }
             		
                     // Copia o conteúdo do JTextArea para o buffer
-                    for (int indice = 0; (indice < textoEntrada.length()) && (indice < comprimentoMaximo - 1); indice++) 
+                    for (int indice = 0; (indice < textoEntrada.length()); indice++) 
                         Globals.memory.setByte(enderecoByte + indice, textoEntrada.charAt(indice));
                     
                     // Adiciona o caractere nulo ('\0') para o fim da string
                     Globals.memory.setByte(enderecoByte + (int)Math.min((textoEntrada.length() + 1), comprimentoMaximo - 1), 0);
 
-                    if (textoEntrada.length() <= comprimentoMaximo - 1) {
-                        RegisterFile.updateRegister(5, 0);
-                        enderecoByte = RegisterFile.getValue(7);
-                        String textoArquivo = JOptionPane.showInputDialog("Digite o nome do arquivo");
-                       
-                        for (int indice = 0; (indice < textoArquivo.length()) && (indice < comprimentoArquivo - 1); indice++) 
-                            Globals.memory.setByte(enderecoByte + indice, textoArquivo.charAt(indice));
-                        break;
-                    }
+                    RegisterFile.updateRegister(5, 0);
+                    enderecoByte = RegisterFile.getValue(7);
+                    String textoArquivo = JOptionPane.showInputDialog("Digite o nome do arquivo");
+                   
+                    for (int indice = 0; (indice < textoArquivo.length()) && (indice < comprimentoArquivo - 1); indice++) 
+                        Globals.memory.setByte(enderecoByte + indice, textoArquivo.charAt(indice));
+                    break;               
             	}   
             } 
             catch (AddressErrorException e) 
