@@ -1,6 +1,3 @@
-Apresentação para a disciplina de Organização e Arquitetura de Computadores:
-[Video](https://drive.google.com/file/d/1q5gduE2DVHz8avXWNhcraBIpIScmfFUr/view?usp=sharing)
-
 # MARS Modified
 
 Este projeto é uma versão aprimorada do MARS (MIPS Assembler and Runtime Simulator). Nesta modificação, uma nova syscall foi adicionada, permitindo que os usuários operem um editor de texto simples. Com ele, é possível escrever, salvar e editar arquivos de texto diretamente no ambiente MARS.
